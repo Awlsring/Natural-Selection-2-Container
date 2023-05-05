@@ -19,7 +19,7 @@ More details can be found on the [Natural Selection 2 Wiki](https://naturalselec
 | LIMIT           | `24`                | Player limit allowed on server. Max is 24.                                                                                                                                                                                |
 | SPECTATOR_LIMIT | `0`                 | Allowed number of spectators on server.                                                                                                                                                                                   |
 | CONFIG_PATH     | `/home/steam/ns2/config`                    | Path for server config file.                                                                                                                                                                                              |
-| LOG_DIR         |      `/home/steam/ns2/logs`                | Path for logging.                                                                                                                                                                                                         |
+| LOG_DIR         |      `/home/steam/ns2/logs`                | Path for where log files are kept.                                                                                                                                                                                                         |
 | MODS            |                     | Space seperated list of mod IDs.                                                                                                                                                                                          |
 | MOD_DIR     |      `/home/steam/ns2/mods`                | Location mods are stored.                                                                                                                                                                                                 |
 | WEB_ADMIN       |                     | If anything is set for this variable, the Web admin will be set.                                                                                                                                                          |
@@ -34,7 +34,7 @@ More details can be found on the [Natural Selection 2 Wiki](https://naturalselec
 
 Server can quickly be started with...
 
-`docker run -d --name ns2 -e SERVER_NAME=MyServer -e PASSWORD="Secret" -p 27015:27015 -p 27016-27016 awlsring/ns2`
+`docker run -d --name ns2 -e NAME=MyServer -e PASSWORD="Secret" -p 27015:27015 -p 27016-27016 ghcr.io/awlsring/ns2:latest`
 
 ### Docker-Compose
 
