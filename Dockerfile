@@ -1,78 +1,55 @@
-FROM debian:buster-slim
-#
-ARG PUID=1000
-#
-ENV DEBIAN_FRONTEND=noninteractive
-ENV USER steam
-ENV HOME_DIR "/home/${USER}"
-ENV STEAM_DIR "${HOME_DIR}/steamcmd"
-ENV STEAM_APP_ID 4940
-ENV STEAM_APP ns2
-ENV STEAM_APP_DIR "${HOME_DIR}/${STEAM_APP}-server"
-#
-COPY requirements.txt /tmp
-COPY setup/ /opt/setup/scripts/
-#
-RUN dpkg --add-architecture i386 \
-    && apt-get update \
-    && apt-get -y --no-install-recommends install apt-utils \
-    && apt-get -y dist-upgrade \
-    && apt-get -y --no-install-recommends install \
-    libc6-dev \
-    lib32gcc1 \
-    lib32stdc++6 \
-    lib32z1 \
-    libsdl2-2.0-0 \
-    libsdl2-2.0-0:i386 \
-    locales \
-    curl \
-    wget \
-    git \
-    python3-pip \
-    build-essential \
-    python3-dev \
-    unzip \
-    zip \
-    libcurl4 \
-    ca-certificates \
-    python3-minimal \
-    python3-pkg-resources \
-    screen \
-    && update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
-    && apt-get clean \
-    && mkdir -p /opt/setup/scripts \
-    && useradd -u "${PUID}" -m "${USER}" \
-    && su "${USER}" \
-    && set -x \
-    && sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
-    && dpkg-reconfigure --frontend=noninteractive locales \
-    && su "${USER}" -c \
-    "mkdir -p \"${STEAM_DIR}\" \
-    && wget -qO- 'https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz' | tar xvzf - -C \"${STEAM_DIR}\" \
-    && \"./${STEAM_DIR}/steamcmd.sh\" +quit \
-    && mkdir -p \"${HOME_DIR}/.steam/sdk32\" \
-    && ln -s \"${STEAM_DIR}/linux32/steamclient.so\" \"${HOME_DIR}/.steam/sdk32/steamclient.so\" \
-    && ln -s \"${STEAM_DIR}/linux32/steamcmd\" \"${STEAM_DIR}/linux32/steam\" \
-    && ln -s \"${STEAM_DIR}/steamcmd.sh\" \"${STEAM_DIR}/steam.sh\"" \
-    && ln -s "${STEAM_DIR}/linux32/steamclient.so" "/usr/lib/i386-linux-gnu/steamclient.so" \
-    && ln -s "${STEAM_DIR}/linux64/steamclient.so" "/usr/lib/x86_64-linux-gnu/steamclient.so" \
-    && mkdir -p "${STEAM_APP_DIR}" \
-    && chown -R "${USER}:${USER}" "/opt/setup/scripts/" "${STEAM_APP_DIR}" \	
-    && chmod 755 -R /usr/local/bin/ \
-    && chmod 755 /tmp/requirements.txt \
-    && pip3 install -r /tmp/requirements.txt \
-    && rm /tmp/requirements.txt \
-    && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/* 
-#
+FROM cm2network/steamcmd:root
+
+ENV STEAMAPPID 4940
+ENV STEAMAPP ns2
+ENV STEAMAPPDIR "${HOMEDIR}/${STEAMAPP}"
+ENV SERVERDIR "${STEAMAPPDIR}/server"
+ENV CONFIGDIR "${STEAMAPPDIR}/config"
+ENV LOGDIR "${STEAMAPPDIR}/logs"
+ENV MODDIR "${STEAMAPPDIR}/mods"
+
+COPY entry.sh "${HOMEDIR}/entry.sh"
+
+RUN set -x \
+	&& dpkg --add-architecture i386 \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends --no-install-suggests \
+		wget=1.21-1+deb11u1 \
+		ca-certificates=20210119 \
+		lib32z1=1:1.2.11.dfsg-2+deb11u2 \
+		libncurses5:i386=6.2+20201114-2+deb11u1 \
+		libbz2-1.0:i386=1.0.8-4 \
+		libtinfo5:i386=6.2+20201114-2+deb11u1 \
+		libcurl3-gnutls:i386=7.74.0-1.3+deb11u7 \
+	&& mkdir -p "${STEAMAPPDIR}" \
+	&& mkdir -p "${SERVERDIR}" \
+	&& mkdir -p "${CONFIGDIR}" \
+	&& mkdir -p "${LOGDIR}" \
+	&& mkdir -p "${MODDIR}" \
+	&& chmod +x "${HOMEDIR}/entry.sh" \
+	&& chown -R "${USER}:${USER}" "${HOMEDIR}/entry.sh" "${STEAMAPPDIR}" "${CONFIGDIR}" "${SERVERDIR}" "${LOGDIR}" "${MODDIR}" \
+	&& rm -rf /var/lib/apt/lists/*
+
+ENV NAME="NS2 Server" \
+    PASSWORD="" \
+    PORT="27015" \
+    LIMIT="24" \
+    SPECTATOR_LIMIT="0" \
+    MAP="ns2_summit" \
+    CONFIG_PATH="${CONFIGDIR}" \
+    LOG_DIR="${LOGDIR}" \
+    MOD_DIR="${MODDIR}"
+
+# Switch to user
 USER ${USER}
-#
-VOLUME ${STEAM_APP_DIR}
-#
-WORKDIR ${HOME_DIR}
-#
-CMD python3 /opt/setup/scripts/bootstrap.py
-#
-EXPOSE 27015-27016/tcp
-EXPOSE 27015-27016/udp
-EXPOSE 80/tcp
+
+WORKDIR ${HOMEDIR}
+
+CMD ["bash", "entry.sh"] 
+
+# Expose ports
+EXPOSE 27015/udp \
+	27015/tcp \
+	27016/udp \
+    27016/tcp \
+    80/tcp
