@@ -9,7 +9,15 @@ A containerized Natural Selection 2 server with environment variables to customi
 Server can quickly be started with...
 
 ```shell
-docker run -d --name ns2 -e NAME="NS2 Server" -e PASSWORD="Secret" -p 27015:27015 -p 27016:27016 ghcr.io/awlsring/ns2:latest
+docker run -d --name ns2 \
+-e NAME="NS2 Server" \
+-e PASSWORD="Secret" \
+-p 27015:27015 \
+-p 27016:27016 \
+-v ~/ns2/server:/home/steam/ns2/server \
+-v ~/ns2/config:/home/steam/ns2/config \
+-v ~/ns2/logs:/home/steam/ns2/logs \
+ghcr.io/awlsring/ns2:latest
 ```
 
 ### Docker-Compose
@@ -27,7 +35,7 @@ services:
       - "27016:27016/tcp"
       - "27016:27016/udp"
     volumes:
-      - ~/ns2/workshop:/home/steam/ns2/server
+      - ~/ns2/server:/home/steam/ns2/server
       - ~/ns2/config:/home/steam/ns2/config
       - ~/ns2/logs:/home/steam/ns2/logs
     environment:
@@ -56,7 +64,7 @@ More details can be found on the [Natural Selection 2 Wiki](https://naturalselec
 | MODS            |                     | Space seperated list of mod IDs.                                                                                                                                                                                          |
 | MOD_DIR     |      `/home/steam/ns2/mods`                | Location mods are stored.                                                                                                                                                                                                 |
 | WEB_ADMIN       |                     | If anything is set for this variable, the Web admin will be set.                                                                                                                                                          |
-| WEB_PORT       |                     | If not set an enabled, defaults to `80`.                                                                                                                                                          |
+| WEB_PORT       |                     | If not set as enabled, defaults to `80`.                                                                                                                                                          |
 | WEB_DOMAIN      |                     | IP address to allow remote access to web server.                                                                                                                                                                          |
 | WEB_USER        |                     | User name for logging into web server.                                                                                                                                                                                    |
 | WEB_PASSWORD    |                     | Password for logging into web server.                                                                                                                                                                                     |
