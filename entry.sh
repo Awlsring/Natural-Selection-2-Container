@@ -29,7 +29,7 @@ if [[ -n "${MODS}" ]]; then
     command+=" -mods \"${MODS}\""
 fi
 
-if [[ -n "${WEB_DOMAIN}" ]]; then
+if [[ -n "${WEB_ADMIN}" ]]; then
     command+=" -webadmin"
 fi
 
