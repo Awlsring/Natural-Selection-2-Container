@@ -2,7 +2,40 @@
 
 A containerized Natural Selection 2 server with environment variables to customize server startup behavior.
 
-This can be run out of the box with no variables and it will be a functioning server, however you should probably set at least a name to help you identify it in the server browser.
+## Usage
+
+### Docker
+
+Server can quickly be started with...
+
+```shell
+docker run -d --name ns2 -e NAME="NS2 Server" -e PASSWORD="Secret" -p 27015:27015 -p 27016:27016 ghcr.io/awlsring/ns2:latest
+```
+
+### Docker-Compose
+
+Docker-compose can be used with the following template...
+
+```yaml
+version: "3.9"
+services:
+  ns2:
+    image: "ghcr.io/awlsring/ns2:latest"
+    ports:
+      - "27015:27015/tcp"
+      - "27015:27015/udp"
+      - "27016:27016/tcp"
+      - "27016:27016/udp"
+    volumes:
+      - ~/ns2/workshop:/home/steam/ns2/server
+      - ~/ns2/config:/home/steam/ns2/config
+      - ~/ns2/logs:/home/steam/ns2/logs
+    environment:
+      NAME: "My NS2 Server"
+      PASSWORD: "Secret"
+      LIMIT: 16
+```
+
 
 ## Environment Variables
 
@@ -28,30 +61,15 @@ More details can be found on the [Natural Selection 2 Wiki](https://naturalselec
 | WEB_USER        |                     | User name for logging into web server.                                                                                                                                                                                    |
 | WEB_PASSWORD    |                     | Password for logging into web server.                                                                                                                                                                                     |
 
-## Examples
+## Volumes
 
-### Docker
+This container by default stores various server files in subdirectories of `/home/steam/ns2`. These can be mounted to the host for persistence.
 
-Server can quickly be started with...
+It is recommended to mount the `server` directory to the host so that the server will not be reset when the container is updated.
 
-`docker run -d --name ns2 -e NAME=MyServer -e PASSWORD="Secret" -p 27015:27015 -p 27016-27016 ghcr.io/awlsring/ns2:latest`
-
-### Docker-Compose
-
-Docker-compose can be used with the following template...
-
-```
-version: "3.9"
-services:
-  ns2:
-    image: "ghcr.io/awlsring/ns2:latest"
-    ports:
-      - "27015:27015/tcp"
-      - "27015:27015/udp"
-      - "27016:27016/tcp"
-      - "27016:27016/udp"
-    environment:
-      NAME: "My NS2 Server"
-      PASSWORD: "Secret"
-      LIMIT: 16
-```
+| Path | Purpose |
+| ---- | ------- |
+| `/home/steam/ns2/server` | This is where all server files are stored. |
+| `/home/steam/ns2/config` | This is where the various json config files are stored. |
+| `/home/steam/ns2/mods` | This is where mods are stored. |
+| `/home/steam/ns2/logs` | This is where the server log is written. |
